@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>المزاد</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===== الشاشة الرئيسية ===== -->
+  <section id="screen-home" class="screen active">
+    <div class="brand">
+      <span class="brand-eyebrow">مزاد الكلمات</span>
+      <h1 class="brand-title">المزاد</h1>
+      <p class="brand-sub">اشرح، خمّن، وازايد بأقل عدد كلمات ممكن</p>
+    </div>
+
+    <div class="card home-card">
+      <label class="field">
+        <span>اسمك</span>
+        <input id="input-name" type="text" placeholder="اكتب اسمك هنا" maxlength="20" />
+      </label>
+
+      <div class="home-actions">
+        <button id="btn-host" class="btn btn-gold">أنشئ غرفة (Host)</button>
+
+        <div class="divider"><span>أو</span></div>
+
+        <label class="field">
+          <span>كود الغرفة</span>
+          <input id="input-room-code" type="text" placeholder="مثال: A7K2" maxlength="4" style="text-transform:uppercase" />
+        </label>
+        <button id="btn-join" class="btn btn-outline">انضم لغرفة</button>
+      </div>
+
+      <p id="home-error" class="error-text"></p>
+    </div>
+  </section>
+
+  <!-- ===== شاشة الـLobby ===== -->
+  <section id="screen-lobby" class="screen">
+    <div class="lobby-header">
+      <div>
+        <span class="brand-eyebrow">كود الغرفة</span>
+        <h2 id="lobby-room-code" class="room-code">----</h2>
+      </div>
+      <div class="header-actions">
+        <div id="lobby-you" class="you-badge"></div>
+        <button id="btn-leave-lobby" class="btn-icon" title="خروج">🚪 خروج</button>
+        <button id="btn-end-game-lobby" class="btn-icon btn-icon-danger hidden" title="إنهاء المباراة">🛑 إنهاء</button>
+      </div>
+    </div>
+
+    <div class="lobby-grid">
+      <div class="card">
+        <h3 class="card-title">الفرق</h3>
+        <div id="teams-list" class="teams-list"></div>
+        <p id="teams-waiting-msg" class="hint-text hidden">⏳ في انتظار الـ Host يعمل الفرق...</p>
+
+        <div id="create-team-row" class="create-team-row">
+          <input id="input-team-name" type="text" placeholder="اسم فريق جديد" maxlength="18" />
+          <button id="btn-create-team" class="btn btn-small btn-outline">+ فريق جديد</button>
+        </div>
+      </div>
+
+      <div class="card" id="host-settings-card">
+        <h3 class="card-title">إعدادات المباراة <span class="host-only-tag">Host فقط</span></h3>
+        <div class="settings-grid">
+          <label class="field">
+            <span>مدة المزاد (ثواني)</span>
+            <input id="setting-auction" type="number" min="3" max="30" value="7" />
+          </label>
+          <label class="field">
+            <span>مدة الشرح (ثواني)</span>
+            <input id="setting-explain" type="number" min="10" max="180" value="90" />
+          </label>
+          <label class="field">
+            <span>الهدف (نقاط)</span>
+            <input id="setting-target" type="number" min="1" max="100" value="12" />
+          </label>
+          <label class="field">
+            <span>صعوبة الكلمات</span>
+            <select id="setting-difficulty">
+              <option value="mix">متنوعة (Mix)</option>
+              <option value="easy">سهلة</option>
+              <option value="medium">متوسطة</option>
+              <option value="hard">صعبة</option>
+            </select>
+          </label>
+        </div>
+        <button id="btn-save-settings" class="btn btn-small btn-outline">حفظ الإعدادات</button>
+        <button id="btn-start-game" class="btn btn-gold btn-block">ابدأ المباراة</button>
+        <p class="hint-text">لازم فريقين على الأقل، وكل فريق فيه لاعب واحد على الأقل.</p>
+      </div>
+    </div>
+
+    <p id="lobby-error" class="error-text"></p>
+  </section>
+
+  <!-- ===== شاشة اللعب ===== -->
+  <section id="screen-game" class="screen">
+
+    <div class="game-header">
+      <div class="scoreboard" id="scoreboard"></div>
+      <div class="header-actions">
+        <button id="btn-leave-game" class="btn-icon" title="خروج">🚪 خروج</button>
+        <button id="btn-end-game" class="btn-icon btn-icon-danger hidden" title="إنهاء المباراة">🛑 إنهاء</button>
+      </div>
+    </div>
+
+    <div class="game-stage">
+
+      <!-- بطاقة المشاركين فى الجولة -->
+      <div id="round-selections" class="round-selections"></div>
+
+      <!-- كلمتك السرية -->
+      <div id="secret-word-box" class="secret-word-box hidden">
+        <span class="secret-eyebrow">كلمتك السرية</span>
+        <div id="secret-word-text" class="secret-word-text">—</div>
+        <div id="secret-word-diff" class="secret-word-diff"></div>
+      </div>
+
+      <!-- مرحلة المزاد -->
+      <div id="auction-box" class="phase-box hidden">
+        <span class="phase-eyebrow">مرحلة المزاد</span>
+        <div class="timer-ring">
+          <span id="auction-timer" class="timer-number">7</span>
+        </div>
+        <p class="phase-hint">قدّم أقل عدد كلمات تقدر تشرح بيه الكلمة</p>
+        <div id="bid-buttons" class="bid-buttons">
+          <button class="paddle" data-value="1"><span class="paddle-num">1</span><span class="paddle-label">كلمة</span></button>
+          <button class="paddle" data-value="2"><span class="paddle-num">2</span><span class="paddle-label">كلمتين</span></button>
+          <button class="paddle" data-value="3"><span class="paddle-num">3</span><span class="paddle-label">3 كلمات</span></button>
+        </div>
+        <p id="bid-status" class="bid-status"></p>
+      </div>
+
+      <!-- نتيجة المزاد -->
+      <div id="auction-result-box" class="phase-box hidden">
+        <span class="phase-eyebrow">نتيجة المزاد</span>
+        <div id="auction-result-list" class="auction-result-list"></div>
+      </div>
+
+      <!-- مرحلة الشرح -->
+      <div id="explain-box" class="phase-box hidden">
+        <span class="phase-eyebrow" id="explain-eyebrow">مرحلة الشرح</span>
+        <div id="explain-word" class="secret-word-text">—</div>
+        <div class="timer-ring timer-ring-explain" id="explain-timer-ring">
+          <span id="explain-timer" class="timer-number">90</span>
+        </div>
+        <p id="explain-info" class="explain-info"></p>
+        <button id="btn-correct" class="btn btn-gold btn-block hidden">✅ صح - أعطهم النقطة</button>
+        <button id="btn-withdraw" class="btn btn-outline btn-block hidden">🏳️ انسحاب (-1 نقطة، والدور يروح للفريق التالي)</button>
+      </div>
+
+      <!-- شاشة انتقالية بين الجولات -->
+      <div id="roundend-box" class="phase-box hidden">
+        <span class="phase-eyebrow" id="roundend-eyebrow">انتهت الجولة</span>
+        <p id="roundend-msg" class="phase-hint"></p>
+        <button id="btn-next-round" class="btn btn-gold btn-block hidden">الجولة الجاية ⟶</button>
+        <p id="roundend-waiting" class="hint-text hidden">⏳ في انتظار الـ Host يبدأ الجولة الجاية...</p>
+      </div>
+
+      <!-- تصويت الاستمرار -->
+      <div id="continue-box" class="phase-box hidden">
+        <span class="phase-eyebrow">كل الفرق فشلت فى تخمين الكلمة</span>
+        <p class="phase-hint">تحب فريقك يكمل مزاد جديد على نفس الكلمة؟</p>
+        <div class="continue-actions">
+          <button id="btn-continue-yes" class="btn btn-gold">نكمل ✅</button>
+          <button id="btn-continue-no" class="btn btn-outline">كلمة جديدة ✋</button>
+        </div>
+        <div id="continue-votes" class="continue-votes"></div>
+      </div>
+
+      <!-- شاشة نهاية اللعبة -->
+      <div id="gameover-box" class="phase-box hidden">
+        <span class="phase-eyebrow">انتهت المباراة 🏆</span>
+        <div id="gameover-ranking" class="gameover-ranking"></div>
+      </div>
+
+    </div>
+
+    <div id="event-log" class="event-log"></div>
+  </section>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/client.js"></script>
+</body>
+</html>
