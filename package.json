@@ -1,9 +1,12 @@
 {
-  "name": "almazad-prototype",
+  "name": "gawla-server",
   "version": "0.1.0",
   "private": true,
-  "description": "Almazad - real-time multiplayer word auction game (prototype)",
+  "description": "Hafla server - Al-Mazad is live; more party games get added as they're built.",
   "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "node server.js"
   },
